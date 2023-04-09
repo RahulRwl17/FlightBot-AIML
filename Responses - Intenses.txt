@@ -1,0 +1,15 @@
+# predefined set of responses for each intent
+responses = {
+    'flight_status': 'The current status of your flight is On Time.',
+    'flight_departure_time': 'Your flight is scheduled to depart at 4:30 PM.',
+    'flight_gate_number': 'Your flight will depart from gate number 12.',
+    'flight_arrival_time': 'Your flight is scheduled to arrive at 8:45 PM.',
+    'flight_number': 'The flight number is AA1234.',
+    'flight_airline': 'The airline operating the flight is American Airlines.',
+    'flight_current_location': 'Your flight is currently en route to its destination.',
+    'flight_scheduled_departure_time': 'The scheduled departure time of your flight is 4:30 PM.',
+    'flight_delay_status': 'Sorry, your flight is delayed due to weather conditions.',
+    'flight_details': 'Here are the details of your flight: Flight Number: AA1234, Airline: American Airlines, Departure Time: 4:30 PM,  	Arrival Time: 8:45 PM, Current Status: On Time.'
+}
+
+

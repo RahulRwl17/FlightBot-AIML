@@ -1,0 +1,11 @@
+﻿Question,Intent,Label
+What is the status of my flight?,flight_status,
+When will my flight depart?,flight_departure_time,
+Can you tell me the gate number of my flight?,flight_gate_number,
+What is the arrival time of my flight?,flight_arrival_time,
+What is the flight number?,flight_number,
+Which airline is operating the flight?,flight_airline,
+What is the current location of my flight?,flight_current_location,
+What is the scheduled departure time of my flight?,flight_scheduled_departure_time,
+Is my flight delayed?,flight_delay_status,
+Can you provide me the details of my flight?,flight_details,

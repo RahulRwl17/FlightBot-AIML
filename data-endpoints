@@ -1,0 +1,31 @@
+https://api.aviationstack.com/v1/airports
+
+https://api.aviationstack.com/v1/airlines
+
+https://api.aviationstack.com/v1/airplanes
+
+https://api.aviationstack.com/v1/aircraft_types
+
+https://api.aviationstack.com/v1/taxes
+
+https://api.aviationstack.com/v1/cities
+
+https://api.aviationstack.com/v1/countries
+
+https://api.aviationstack.com/v1/airlines
+
+https://api.aviationstack.com/v1/flights
+
+https://api.aviationstack.com/v1/flights
+
+
+## Historical Data Filter
+https://api.aviationstack.com/v1/flights
+    ? access_key = e75ef5901abd55c19862b93eefe46d07
+    & flight_date = 2019-12-11
+
+
+## Get Data in JSON Formate 
+https://api.aviationstack.com/v1/flights
+    ? access_key = e75ef5901abd55c19862b93eefe46d07
+    & callback = MY_FUNCTION
