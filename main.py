@@ -52,29 +52,36 @@ def preprocess(text):
 
 def get_flight_details(**kwargs):
 
-    # url = app.config['API_URL'] + app.config['ACCESS_KEY']
-    url = f"http://api.aviationstack.com/v1/flights?access_key={app.config['ACCESS_KEY']}&arr_country=India"
+    url = app.config['API_URL']
+    # url = f"http://api.aviationstack.com/v1/flights?access_key={app.config['ACCESS_KEY']}&arr_country=India"
     
-    params = {"access_key": app.config['ACCESS_KEY']}
+    params = {
+        "access_key": app.config['ACCESS_KEY'],
+        "limit": 3
+        }
 
 
     for key, value in kwargs.items():
         
         if key == 'Origin' or 'Destination':
+            
+            params = {
+            "access_key": app.config['ACCESS_KEY'],
+            "limit": 10,
+            "dep_iata": kwargs['Origin'], 
+            "arr_iata": kwargs['Destination']
+            }
+            response = requests.get(url, params=params)
 
-            response = requests.get(url)
-            print(response.status_code)
-            print(response.text)
             if response.status_code == 200:
                 
                 data = response.json()
-                print(data)
 
                 return data
         
         elif key == 'Status':
         
-            response = requests.get(url, params={"flight_status": key['Status']})
+            response = requests.get(url, params={"flight_status": kwargs['Status']})
             
             if response.status_code == 200:
                 
@@ -84,7 +91,7 @@ def get_flight_details(**kwargs):
         
         elif key == 'Details':
              
-            response = requests.get(url, params={"dep_iata": key['Origin'], "arr_iata": key['Destination']})
+            response = requests.get(url, params={"dep_iata": kwargs['Origin'], "arr_iata": kwargs['Destination']})
         
             if response.status_code == 200:
                 
@@ -94,7 +101,7 @@ def get_flight_details(**kwargs):
             
         elif key == 'Date':
     
-            response = requests.get(url, params={"dep_iata": key['Origin'], "arr_iata": key['Destination'], "flight_date": key['Date']})
+            response = requests.get(url, params={"dep_iata": kwargs['Origin'], "arr_iata": kwargs['Destination'], "flight_date": kwargs['Date']})
 
         
             if response.status_code == 200:
@@ -105,7 +112,7 @@ def get_flight_details(**kwargs):
 
         elif key == 'Flight_Number':
              
-            response = requests.get(url, params={"dep_iata": key['Origin'], "arr_iata": key['Destination']})
+            response = requests.get(url, params={"dep_iata": kwargs['Origin'], "arr_iata": kwargs['Destination']})
         
             if response.status_code == 200:
                 
@@ -154,13 +161,14 @@ def generate_response(user_input):
     # Preprocess the user input
     tokenize_user_input, tokenize_sentence = preprocess(user_input)
     
-    print(tokenize_sentence)
-    if ['hello', 'how are you?', 'can you help me with my flight?', 'I need help!'] in tokenize_sentence:
+    if tokenize_sentence[0] in ['hello', 'how are you?', 'can you help me with my flight?', 'I need help!']:
         
         greeting_messages = ["Hi there! How can I help you today?", "Hello! What can I do for you?", "Hey! How can I assist you?"]
 
-        return random.choice(greeting_messages)
+        return {"static" : random.choice(greeting_messages)}
     
+
+    ## Predicting User Intent (Classifying Using Trained Model)
     intent_label = user_intent(user_input)
 
     print("Intent of user from Model:", intent_label)
@@ -170,20 +178,21 @@ def generate_response(user_input):
         flight_number = [token for token in user_input if token.isdigit()][0]
         chatbot_response =  get_flight_details(Flight_Number = flight_number)
 
-        return chatbot_response
+        return {"API" : chatbot_response}
     
     # Check if the user input contains origin and destination places
     if any(token in tokenize_user_input for token in ["from", "to"]):
         origin = [tokenize_user_input[i+1] for i, token in enumerate(tokenize_user_input) if token == "from"][0]
         destination = [tokenize_user_input[i+1] for i, token in enumerate(tokenize_user_input) if token == "to"][0]
-        chatbot_response =  get_flight_details(Origin = origin, Destiantion = destination)
-        return chatbot_response
+        chatbot_response =  get_flight_details(Origin = origin, Destination = destination)
+        
+        return {"API" : chatbot_response}
 
     if intent_label == "flight_status":
         
         chatbot_response = get_flight_details(flight_number = flight_number)
 
-        return chatbot_response
+        return {"API" : chatbot_response}
           
     elif intent_label == "flight_number":
         pass
@@ -199,10 +208,10 @@ def generate_response(user_input):
 
         goodbye_message = ["You're welcome!", "Glad to help!"]
 
-        return random.choice(goodbye_message) 
+        return {"static" : random.choice(goodbye_message)}
    
     # Return the generated response as the chatbot's response
-    return "Sorry, I couldn't find any flights."
+    return {"static" : "Sorry, I couldn't find any flights."}
 
 
 
@@ -210,14 +219,58 @@ def generate_response(user_input):
 @app.route("/chat", methods  = ['GET', 'POST'])
 def chat():
     if request.method == 'POST':
+        
         user_input = request.form["user_input"]
+        
         print(user_input)
+        
         response = generate_response(user_input)
-        print(response)
-        return render_template('index.html', response = response)
+        
+        for key,value in response.items():
+            
+            if key == 'API':
+
+                res_obj = response['API']['data']
+                
+                ## Fetching Data from API Response
+                data_list = []
+                
+                for flight_data in res_obj:
+                    
+                    
+                    ## Fetching Data from API Response
+                    data = {}
+                
+
+                    for key,value in flight_data.items():
+                        
+                        if key == 'flight_date':
+                            data['dates'] = value
+                        elif key == 'flight_status':
+                            data['status'] = value
+                        elif key == 'departure':
+                            data['departure'] = flight_data['departure']['airport']    
+                        elif key == 'arrival':
+                            data['arrival'] = flight_data['arrival']['airport']
+                        elif key == 'airline':
+                            data['airline'] = flight_data['airline']['name']
+                        elif key == 'flight':
+                            data['number'] = flight_data['flight']['number']
+                    
+                    data_list.append(data)
+                
+                print(data_list)
+                
+                return jsonify(response=data_list)
+            
+            else:
+            
+                return jsonify(response=value)
+    
     else:
+
         return render_template('index.html')
-  
+
 
 if __name__ == "__main__":
     app.run(debug=True)
