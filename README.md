@@ -1,7 +1,7 @@
 
 # Travel Desk - FlightBot
 
-## Into:
+## Introduction
 
 Travel Desk is a rule-based chatbot that built using flask framework as frontend and BERT(Langugae Model) and AviationStack API as 
 the backend. It helps users to find flights according to thier preferences.
